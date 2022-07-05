@@ -147,7 +147,7 @@ try:
           error=True
   line_count1=1
   for i in l:  # Gives final list of instructions without empty lines
-        if i != '\n\n':
+        if i != '''\n''':
             l2.append(i)
             if (i.strip().split()[0] in opcode):  # Count of the total number of instructions excluding var and label declerations
                 instruction_count += 1
@@ -184,8 +184,8 @@ try:
         error=True
   pre_var_dec=True
   line_count2=1
-  for i in l[:-1]:
-        if(i!='\n\n'):
+  for i in l2[:-1]:
+        if(i!='''\n'''):
             if(error):
                 break
             tempvar = i.strip().split()
@@ -222,7 +222,7 @@ try:
                 break
         line_count2+=1
   for i in l:         #Line count handled
-    if(i!='\n\n'):
+    if(i!='''\n'''):
       if(error):
         break
       instruction_list = i.strip().split()# getting opcode
