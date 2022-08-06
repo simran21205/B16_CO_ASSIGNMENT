@@ -22,6 +22,9 @@ try:
       xx=xx-1
     else:
       break
+
+
+    
   opcode = {"add": ("10000", "RRR"),"sub": ("10001", 'RRR'),"mov": ("10010", 'R$', "10011", 'RR'),"ld": ("10100", "Rm"),
               "st": ("10101", "Rm"),"mul": ("10110", "RRR"),"div": ("10111", "RR"),"rs": ("11000", "R$"),
               "ls": ("11001", "R$"),"xor": ("11010", "RRR"),"or": ("11011", "RRR"),"and": ("11100", "RRR"),
@@ -50,6 +53,14 @@ try:
       x = bin(n)[2:]
       num = 8 - len(x)
       return "0" * num + x
+  def _3bit(n):
+    x=n
+    num = 3 - len(x)
+    return "0" * num + x
+  def _5bit(n):
+    x=n[:5]
+    num = 5 - len(x)
+    return "0" * num + x
   def binaryOfFraction(fraction):
     binary = str()
     while (fraction):
@@ -60,13 +71,14 @@ try:
       else:
         int_part = 0
       binary += str(int_part)
-      return binary
+    return binary
 
   def floatingPoint(real_no):
     int_str = bin(int(float(real_no)))[2 : ]
     fraction_str = binaryOfFraction(float(real_no) - int(float(real_no)))
     ind = int_str.index('1')
-    exp_str = bin((len(int_str) - ind - 1) + 3)[2 : ]
+    exp_str = bin((len(int_str) - ind - 1))[2 : ]
+    exp_str= _3bit(exp_str)
     mant_str = int_str[ind + 1 : ] + fraction_str
     mant_str = mant_str + ('0' * (5 - len(mant_str)))
     ieee_8=exp_str+ mant_str
@@ -174,10 +186,15 @@ try:
                         error = True
                         print("[ERROR] Illegal use of FLAGS register at line "+str(line_count))
                   elif isfloat(instruction_list[2][1:]):
-                    if 0 <= float(instruction_list[2][1:]) <= 255:
-                      if registers[instruction_list[1]] != "111":           
-                        binary_instruction = binary_instruction + registers[instruction_list[1]] + floatingPoint(instruction_list[2][1:])
-                        out.append(binary_instruction)
+                    if 0 <= float(instruction_list[2][1:]) <= 252:
+                      if registers[instruction_list[1]] != "111":
+                        ieee = floatingPoint(instruction_list[2][1:])
+                        if len(ieee)<=8:
+                          binary_instruction = binary_instruction + registers[instruction_list[1]] + floatingPoint(instruction_list[2][1:])
+                          out.append(binary_instruction)
+                        else:
+                          error = True
+                          print("[ERROR] Cannot represent mantissa in 5 bits at line " +str(line_count))
                       else:
                         error = True
                         print("[ERROR] Illegal use of FLAGS register at line " +str(line_count))
@@ -305,5 +322,4 @@ try:
     for i in out:
       print(i)
 except:
-  print(traceback.format_exc())
   print("[ERROR]Invalid Input File Format")
